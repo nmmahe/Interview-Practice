@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import "./styles/app.css";
 import Circle from "./components/Circle";
 import CardContainer from "./components/CardContainer";
-import { useForm } from "react-hook-form";
+import ModalForm from "./components/ModalForm";
 import { v4 as uuidv4 } from "uuid";
 
 const App = () => {
-  const { register, handleSubmit, watch, errors } = useForm();
+  //react-hook-form submit from ModalForm
   const onSubmit = (data) => {
     console.log(data);
     const newId = uuidv4(); // ⇨ '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
@@ -21,7 +21,6 @@ const App = () => {
     setInterviewData([...interviewData, newQuestion]);
   };
 
-  console.log(watch("example")); // watch input value by passing the name of it
   const tempData = [
     {
       id: 1,
@@ -49,9 +48,9 @@ const App = () => {
   ];
   const [interviewData, setInterviewData] = useState(tempData);
 
+  //toggles the hidden field to show question details or not
   const handleDetails = (id) => {
     console.log(id);
-    //toggles the hidden field to show question details or not
     const updatedData = interviewData.map((card) =>
       card.id === id ? { ...card, hidden: !card.hidden } : card
     );
@@ -66,29 +65,7 @@ const App = () => {
         handleDetails={(id) => handleDetails(id)}
       ></CardContainer>
 
-      {/* "handleSubmit" will validate your inputs before invoking "onSubmit" */}
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* register your input into the hook by invoking the "register" function */}
-        <input
-          name="question"
-          placeholder="Enter a question..."
-          ref={register({ required: true })}
-        />
-        {errors.question && <span>This field is required</span>}
-        {/* include validation with required or other standard HTML validation rules */}
-        <input
-          name="confidence"
-          placeholder="How confident are you with this question?"
-          ref={register({ required: true })}
-        />
-        {/* errors will return when field validation fails  */}
-        {errors.confidence && <span>This field is required</span>}
-        <input name="notes" placeholder="Notes..." ref={register} />
-        {/* errors will return when field validation fails  */}
-        {errors.notes}
-
-        <input type="submit" />
-      </form>
+      <ModalForm onSubmit={onSubmit} />
     </div>
   );
 };
