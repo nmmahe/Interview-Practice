@@ -1,0 +1,11 @@
+.App {
+  background-color: #8c8cc4;
+  min-height: 100vh;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: unset;
+  position: relative;
+}
