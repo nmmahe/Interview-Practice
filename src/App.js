@@ -4,6 +4,22 @@ import Circle from "./components/Circle";
 import CardContainer from "./components/CardContainer";
 import ModalForm from "./components/ModalForm";
 import { v4 as uuidv4 } from "uuid";
+import Modal from "react-modal";
+
+const customStyles = {
+  content: {
+    top: "35%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+  },
+};
+var subtitle;
+
+// Make sure to bind modal to your appElement (http://reactcommunity.org/react-modal/accessibility/)
+Modal.setAppElement("#root");
 
 const App = () => {
   //react-hook-form submit from ModalForm
@@ -19,6 +35,7 @@ const App = () => {
       hidden: true,
     };
     setInterviewData([...interviewData, newQuestion]);
+    closeModal();
   };
 
   const tempData = [
@@ -47,6 +64,18 @@ const App = () => {
     },
   ];
   const [interviewData, setInterviewData] = useState(tempData);
+  const [modalIsOpen, setIsOpen] = React.useState(false);
+
+  const openModal = () => {
+    setIsOpen(true);
+  };
+  const afterOpenModal = () => {
+    // references are now sync'd and can be accessed.
+    //subtitle.style.color = "#f00";
+  };
+  const closeModal = () => {
+    setIsOpen(false);
+  };
 
   //toggles the hidden field to show question details or not
   const handleDetails = (id) => {
@@ -60,12 +89,22 @@ const App = () => {
   return (
     <div className="App">
       <Circle></Circle>
+      <button onClick={openModal}>Add Question</button>
       <CardContainer
         interviewData={interviewData}
         handleDetails={(id) => handleDetails(id)}
       ></CardContainer>
+      <Modal
+        isOpen={modalIsOpen}
+        onAfterOpen={afterOpenModal}
+        onRequestClose={closeModal}
+        style={customStyles}
+        contentLabel="Modal Form"
+      >
+        <h2 ref={(_subtitle) => (subtitle = _subtitle)}>Hello</h2>
 
-      <ModalForm onSubmit={onSubmit} />
+        <ModalForm onSubmit={onSubmit} />
+      </Modal>
     </div>
   );
 };
