@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "./styles/app.css";
 import Circle from "./components/Circle";
 import CardContainer from "./components/CardContainer";
 import ModalForm from "./components/ModalForm";
 import { v4 as uuidv4 } from "uuid";
 import Modal from "react-modal";
-
+import MicRecorder from "mic-recorder-to-mp3";
+//style for the modal
 const customStyles = {
   content: {
     top: "35%",
@@ -22,6 +23,60 @@ var subtitle;
 Modal.setAppElement("#root");
 
 const App = () => {
+  //audio recording
+  //Tut at https://medium.com/front-end-weekly/recording-audio-in-mp3-using-reactjs-under-5-minutes-5e960defaf10
+  //const Mp3Recorder = new MicRecorder({ bitRate: 128 });
+  //Need this line below as shown since it's a functional component implementation. See https://github.com/closeio/mic-recorder-to-mp3/issues/14
+  const Mp3Recorder = useMemo(() => new MicRecorder({ bitRate: 128 }), []);
+  const [recording, setRecording] = useState({
+    isRecording: false,
+    blobURL: "",
+    isBlocked: false,
+  });
+  useEffect(() => {
+    console.log("mounted");
+    navigator.getUserMedia(
+      { audio: true },
+      () => {
+        console.log("Permission Granted");
+        setRecording({ isBlocked: false });
+      },
+      () => {
+        console.log("Permission Denied");
+        setRecording({ isBlocked: true });
+      }
+    );
+  }, []);
+
+  const start = () => {
+    if (recording.isBlocked) {
+      console.log("Permission Denied");
+    } else {
+      Mp3Recorder.start()
+        .then(() => {
+          setRecording({ isRecording: true });
+        })
+        .catch((e) => console.error(e));
+    }
+  };
+  const stop = () => {
+    Mp3Recorder.stop()
+      .getMp3()
+      .then(([buffer, blob]) => {
+        const blobURL = URL.createObjectURL(blob);
+        setRecording({ blobURL, isRecording: false });
+        console.log("done");
+        const updatedData = interviewData.map((card) =>
+          card.id === 1 ? { ...card, audio: blobURL } : card
+        );
+        console.log(updatedData);
+        setInterviewData(updatedData);
+
+        console.log(interviewData);
+      })
+      .catch((e) => console.log(e));
+  };
+
   //react-hook-form submit from ModalForm
   const onSubmit = (data) => {
     console.log(data);
@@ -48,7 +103,7 @@ const App = () => {
         notes: "Feel ready",
       },
 
-      audio: "audio1.mp3",
+      audio: "https://www.w3schools.com/html/horse.mp3",
       hidden: true,
     },
     {
@@ -59,7 +114,7 @@ const App = () => {
         confidence: 50,
         notes: "Umm",
       },
-      audio: "audio2.mp3",
+      audio: "https://www.w3schools.com/html/horse.mp3",
       hidden: true,
     },
   ];
@@ -90,6 +145,13 @@ const App = () => {
     <div className="App">
       <Circle></Circle>
       <button onClick={openModal}>Add Question</button>
+      <button onClick={start} disabled={recording.isRecording}>
+        Record
+      </button>
+      <button onClick={stop} disabled={!recording.isRecording}>
+        Stop
+      </button>
+      <audio src={recording.blobURL} controls="controls" />
       <CardContainer
         interviewData={interviewData}
         handleDetails={(id) => handleDetails(id)}
