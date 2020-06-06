@@ -5,7 +5,7 @@ import Stats from "./Stats";
 import Audio from "./Audio";
 
 const Card = (props) => {
-  const { card, handleDetails } = props;
+  const { card, handleDetails, start, stop } = props;
   const { id, question, stats, audio, hidden } = card;
   return (
     <div className="card">
@@ -14,7 +14,7 @@ const Card = (props) => {
       {hidden ? null : (
         <>
           <Stats stats={stats}></Stats>
-          <Audio audio={audio}></Audio>
+          <Audio audio={audio} start={start} stop={stop} id={id}></Audio>
         </>
       )}
 

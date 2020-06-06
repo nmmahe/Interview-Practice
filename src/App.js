@@ -33,66 +33,6 @@ const App = () => {
     blobURL: "",
     isBlocked: false,
   });
-  useEffect(() => {
-    console.log("mounted");
-    navigator.getUserMedia(
-      { audio: true },
-      () => {
-        console.log("Permission Granted");
-        setRecording({ isBlocked: false });
-      },
-      () => {
-        console.log("Permission Denied");
-        setRecording({ isBlocked: true });
-      }
-    );
-  }, []);
-
-  const start = () => {
-    if (recording.isBlocked) {
-      console.log("Permission Denied");
-    } else {
-      Mp3Recorder.start()
-        .then(() => {
-          setRecording({ isRecording: true });
-        })
-        .catch((e) => console.error(e));
-    }
-  };
-  const stop = () => {
-    Mp3Recorder.stop()
-      .getMp3()
-      .then(([buffer, blob]) => {
-        const blobURL = URL.createObjectURL(blob);
-        setRecording({ blobURL, isRecording: false });
-        console.log("done");
-        const updatedData = interviewData.map((card) =>
-          card.id === 1 ? { ...card, audio: blobURL } : card
-        );
-        console.log(updatedData);
-        setInterviewData(updatedData);
-
-        console.log(interviewData);
-      })
-      .catch((e) => console.log(e));
-  };
-
-  //react-hook-form submit from ModalForm
-  const onSubmit = (data) => {
-    console.log(data);
-    const newId = uuidv4(); // ⇨ '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
-    const { question, confidence, notes } = data;
-    const newQuestion = {
-      id: newId,
-      question: question,
-      stats: { timesPracticed: 0, confidence: confidence, notes: notes },
-      audio: null,
-      hidden: true,
-    };
-    setInterviewData([...interviewData, newQuestion]);
-    closeModal();
-  };
-
   const tempData = [
     {
       id: 1,
@@ -119,6 +59,66 @@ const App = () => {
     },
   ];
   const [interviewData, setInterviewData] = useState(tempData);
+  useEffect(() => {
+    console.log("mounted");
+    navigator.getUserMedia(
+      { audio: true },
+      () => {
+        console.log("Permission Granted");
+        setRecording({ isBlocked: false });
+      },
+      () => {
+        console.log("Permission Denied");
+        setRecording({ isBlocked: true });
+      }
+    );
+  }, [interviewData]);
+
+  const start = () => {
+    if (recording.isBlocked) {
+      console.log("Permission Denied");
+    } else {
+      Mp3Recorder.start()
+        .then(() => {
+          setRecording({ isRecording: true });
+        })
+        .catch((e) => console.error(e));
+    }
+  };
+  const stop = (id) => {
+    Mp3Recorder.stop()
+      .getMp3()
+      .then(([buffer, blob]) => {
+        const blobURL = URL.createObjectURL(blob);
+        setRecording({ blobURL, isRecording: false });
+        console.log("done");
+        const updatedData = interviewData.map((card) =>
+          card.id === id ? { ...card, audio: blobURL } : card
+        );
+        console.log(updatedData);
+        setInterviewData(updatedData);
+
+        console.log(interviewData);
+      })
+      .catch((e) => console.log(e));
+  };
+
+  //react-hook-form submit from ModalForm
+  const onSubmit = (data) => {
+    console.log(data);
+    const newId = uuidv4(); // ⇨ '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
+    const { question, confidence, notes } = data;
+    const newQuestion = {
+      id: newId,
+      question: question,
+      stats: { timesPracticed: 0, confidence: confidence, notes: notes },
+      audio: null,
+      hidden: true,
+    };
+    setInterviewData([...interviewData, newQuestion]);
+    closeModal();
+  };
+
   const [modalIsOpen, setIsOpen] = React.useState(false);
 
   const openModal = () => {
@@ -145,16 +145,18 @@ const App = () => {
     <div className="App">
       <Circle></Circle>
       <button onClick={openModal}>Add Question</button>
-      <button onClick={start} disabled={recording.isRecording}>
+      {/* <button onClick={start} disabled={recording.isRecording}>
         Record
       </button>
       <button onClick={stop} disabled={!recording.isRecording}>
         Stop
       </button>
-      <audio src={recording.blobURL} controls="controls" />
+      <audio src={recording.blobURL} controls="controls" /> */}
       <CardContainer
         interviewData={interviewData}
         handleDetails={(id) => handleDetails(id)}
+        start={start}
+        stop={stop}
       ></CardContainer>
       <Modal
         isOpen={modalIsOpen}
