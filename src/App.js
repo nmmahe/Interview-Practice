@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import "./styles/app.css";
 import Circle from "./components/Circle";
 import CardContainer from "./components/CardContainer";
@@ -28,11 +28,15 @@ const App = () => {
   //const Mp3Recorder = new MicRecorder({ bitRate: 128 });
   //Need this line below as shown since it's a functional component implementation. See https://github.com/closeio/mic-recorder-to-mp3/issues/14
   const Mp3Recorder = useMemo(() => new MicRecorder({ bitRate: 128 }), []);
-  const [recording, setRecording] = useState({
-    isRecording: false,
-    blobURL: "",
-    isBlocked: false,
-  });
+  // const [recording, setRecording] = useState({
+  //   isRecording: false,
+  //   blobURL: "",
+  //   isBlocked: false,
+  // });
+
+  //useRef to keep track of the audio file attached to the audio tag and rerender it when
+  //a new recording is made
+  // const refAudio = useRef();
   const tempData = [
     {
       id: 1,
@@ -43,7 +47,11 @@ const App = () => {
         notes: "Feel ready",
       },
 
-      audio: "https://www.w3schools.com/html/horse.mp3",
+      audio: {
+        blobURL: "https://www.w3schools.com/html/horse.mp3",
+        isRecording: false,
+        isBlocked: false,
+      },
       hidden: true,
     },
     {
@@ -54,7 +62,11 @@ const App = () => {
         confidence: 50,
         notes: "Umm",
       },
-      audio: "https://www.w3schools.com/html/horse.mp3",
+      audio: {
+        blobURL: "https://www.w3schools.com/html/horse.mp3",
+        isRecording: false,
+        isBlocked: false,
+      },
       hidden: true,
     },
   ];
@@ -65,35 +77,51 @@ const App = () => {
       { audio: true },
       () => {
         console.log("Permission Granted");
-        setRecording({ isBlocked: false });
+        //here's where I might need to use refs so I am not mapping over all of the interviewData
+        //again to change the recording
+        //setRecording({ isBlocked: false });
       },
       () => {
         console.log("Permission Denied");
-        setRecording({ isBlocked: true });
+        //setRecording({ isBlocked: true });
       }
     );
+  }, []);
+  useEffect(() => {
+    console.log("changed");
+    //refs.audio.load();
   }, [interviewData]);
 
-  const start = () => {
-    if (recording.isBlocked) {
+  const start = (id, isBlocked, passedAudio) => {
+    if (isBlocked) {
       console.log("Permission Denied");
     } else {
       Mp3Recorder.start()
         .then(() => {
-          setRecording({ isRecording: true });
+          const updatedData = interviewData.map((card) =>
+            card.id === id
+              ? { ...card, audio: { ...passedAudio, isRecording: true } }
+              : card
+          );
+          setInterviewData(updatedData);
         })
         .catch((e) => console.error(e));
     }
   };
-  const stop = (id) => {
+  const stop = (id, passedAudio) => {
     Mp3Recorder.stop()
       .getMp3()
       .then(([buffer, blob]) => {
         const blobURL = URL.createObjectURL(blob);
-        setRecording({ blobURL, isRecording: false });
+
         console.log("done");
         const updatedData = interviewData.map((card) =>
-          card.id === id ? { ...card, audio: blobURL } : card
+          card.id === id
+            ? {
+                ...card,
+                audio: { ...passedAudio, blobURL: blobURL, isRecording: false },
+              }
+            : card
         );
         console.log(updatedData);
         setInterviewData(updatedData);
@@ -145,13 +173,7 @@ const App = () => {
     <div className="App">
       <Circle></Circle>
       <button onClick={openModal}>Add Question</button>
-      {/* <button onClick={start} disabled={recording.isRecording}>
-        Record
-      </button>
-      <button onClick={stop} disabled={!recording.isRecording}>
-        Stop
-      </button>
-      <audio src={recording.blobURL} controls="controls" /> */}
+
       <CardContainer
         interviewData={interviewData}
         handleDetails={(id) => handleDetails(id)}
