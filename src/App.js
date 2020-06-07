@@ -28,18 +28,13 @@ const App = () => {
   //const Mp3Recorder = new MicRecorder({ bitRate: 128 });
   //Need this line below as shown since it's a functional component implementation. See https://github.com/closeio/mic-recorder-to-mp3/issues/14
   const Mp3Recorder = useMemo(() => new MicRecorder({ bitRate: 128 }), []);
-  // const [recording, setRecording] = useState({
-  //   isRecording: false,
-  //   blobURL: "",
-  //   isBlocked: false,
-  // });
 
   //useRef to keep track of the audio file attached to the audio tag and rerender it when
   //a new recording is made
   // const refAudio = useRef();
   const tempData = [
     {
-      id: 1,
+      id: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6e",
       question: "Name one time you made a mistake and what you did about it?",
       stats: {
         timesPracticed: 4,
@@ -55,7 +50,7 @@ const App = () => {
       hidden: true,
     },
     {
-      id: 2,
+      id: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
       question: "Tell me about yourself",
       stats: {
         timesPracticed: 2,
@@ -127,6 +122,8 @@ const App = () => {
         setInterviewData(updatedData);
 
         console.log(interviewData);
+        //updates the audio tag on dom with new video src since rendering won't do that.
+        document.querySelector(`[data-id="${id}"]`).load();
       })
       .catch((e) => console.log(e));
   };
@@ -140,7 +137,11 @@ const App = () => {
       id: newId,
       question: question,
       stats: { timesPracticed: 0, confidence: confidence, notes: notes },
-      audio: null,
+      audio: {
+        blobURL: "",
+        isRecording: false,
+        isBlocked: false,
+      },
       hidden: true,
     };
     setInterviewData([...interviewData, newQuestion]);

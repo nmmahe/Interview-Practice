@@ -8,7 +8,7 @@ const Audio = ({ audio, start, stop, id, recording }) => {
       {audio.blobURL ? (
         <div>
           {/* <audio ref="audio" controls></audio> */}
-          <audio controls>
+          <audio data-id={id} controls>
             <source src={audio.blobURL} type="audio/mpeg" />
           </audio>
         </div>
