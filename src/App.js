@@ -123,7 +123,7 @@ const App = () => {
 
         console.log(interviewData);
         //updates the audio tag on dom with new video src since rendering won't do that.
-        document.querySelector(`[data-id="${id}"]`).load();
+        //document.querySelector(`[data-id="${id}"]`).load();
       })
       .catch((e) => console.log(e));
   };

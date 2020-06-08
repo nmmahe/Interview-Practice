@@ -12,7 +12,15 @@ const Stats = ({ stats, id, handleConfidence }) => {
         step="1"
         value={stats.confidence}
         onChange={(e) => handleConfidence(id, e.target.value)}
+        list="confidencesteplist"
       />
+      <datalist id="confidencesteplist">
+        <option>0</option>
+        <option>25</option>
+        <option>50</option>
+        <option>75</option>
+        <option>100</option>
+      </datalist>
       <div>Notes: {stats.notes}</div>
     </div>
   );

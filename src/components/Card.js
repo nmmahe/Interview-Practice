@@ -26,6 +26,7 @@ const Card = (props) => {
             id={id}
           ></Stats>
           <Audio
+            key={audio.blobURL}
             audio={audio}
             start={start}
             stop={stop}
