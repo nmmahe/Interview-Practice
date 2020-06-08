@@ -6,7 +6,14 @@ const CardContainer = (props) => {
   //For some reason, props needs to be destructured here
   //rather than in the parameter passed above.
   //Gives typeerror for function passed through mapping if not done this way...
-  const { interviewData, handleDetails, start, stop, recording } = props;
+  const {
+    interviewData,
+    handleDetails,
+    start,
+    stop,
+    recording,
+    handleConfidence,
+  } = props;
   const cards = interviewData.map((card) => {
     return (
       <Card
@@ -16,6 +23,7 @@ const CardContainer = (props) => {
         start={start}
         stop={stop}
         recording={recording}
+        handleConfidence={handleConfidence}
       />
     );
   });

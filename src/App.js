@@ -95,7 +95,7 @@ const App = () => {
         .then(() => {
           const updatedData = interviewData.map((card) =>
             card.id === id
-              ? { ...card, audio: { ...passedAudio, isRecording: true } }
+              ? { ...card, audio: { ...card.audio, isRecording: true } }
               : card
           );
           setInterviewData(updatedData);
@@ -114,7 +114,7 @@ const App = () => {
           card.id === id
             ? {
                 ...card,
-                audio: { ...passedAudio, blobURL: blobURL, isRecording: false },
+                audio: { ...card.audio, blobURL: blobURL, isRecording: false },
               }
             : card
         );
@@ -170,6 +170,17 @@ const App = () => {
     setInterviewData(updatedData);
   };
 
+  const handleConfidence = (id, level) => {
+    console.log(id);
+    console.log(level);
+    const updatedData = interviewData.map((card) =>
+      card.id === id
+        ? { ...card, stats: { ...card.stats, confidence: level } }
+        : card
+    );
+    setInterviewData(updatedData);
+  };
+
   return (
     <div className="App">
       <Circle></Circle>
@@ -180,6 +191,7 @@ const App = () => {
         handleDetails={(id) => handleDetails(id)}
         start={start}
         stop={stop}
+        handleConfidence={handleConfidence}
       ></CardContainer>
       <Modal
         isOpen={modalIsOpen}
